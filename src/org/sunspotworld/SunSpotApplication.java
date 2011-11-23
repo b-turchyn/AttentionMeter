@@ -6,6 +6,9 @@
 
 package org.sunspotworld;
 
+import ca.umanitoba.cs.comp4720.NetRequests;
+import ca.umanitoba.cs.comp4720.Actions;
+import ca.umanitoba.cs.comp4720.LEDControl;
 import com.sun.spot.core.resources.Resources;
 import com.sun.spot.core.resources.transducers.ISwitch;
 import com.sun.spot.core.resources.transducers.ISwitchListener;
@@ -36,6 +39,7 @@ public class SunSpotApplication extends MIDlet implements ISwitchListener {
     private ISwitch sw1, sw2;      // Variables to hold the two switches.
     private Actions actions;
     private NetRequests req;
+    private LEDControl ledControl = new LEDControl();
 
     private void monitorSwitches() throws IOException
     {
@@ -70,34 +74,22 @@ public class SunSpotApplication extends MIDlet implements ISwitchListener {
         ISwitch sw1 = (ISwitch) Resources.lookup(ISwitch.class, "SW1");
         while (true) 
         {   
-            Utils.sleep(10000);
+            Utils.sleep(3000);
             
             //Turn them off
-            for(int i = 0; i < 8; i++)
-            {
-                leds.getLED(i).setOff();
-            }
+            ledControl.off();
             
             //Set the average
-            for(int i = 0; i < actions.getAverage(); i++)
-            {
-               leds.getLED(i).setRGB(0,0,25); //dim green
-               leds.getLED(i).setOn();
-            }
+            ledControl.red();
+            ledControl.setOn(actions.getAverage());
             
-            Utils.sleep(1000);
+            Utils.sleep(500);
             
-            for(int i = 0; i < 8; i++)
-            {
-                leds.getLED(i).setOff();
-            }
+            ledControl.off();
             
             //Set the average
-            for(int i = 0; i < actions.getAttention(); i++)
-            {
-               leds.getLED(i).setRGB(0,25,0); //dim green
-               leds.getLED(i).setOn();
-            }
+            ledControl.green();
+            ledControl.setOn(actions.getAttention());
                       
         }
         //notifyDestroyed();                      // cause the MIDlet to exit
@@ -116,14 +108,17 @@ public class SunSpotApplication extends MIDlet implements ISwitchListener {
         if (switchNum == 2) //Right side
         {
             actions.incrementAtt();
-            leds.getLED(actions.getAttention()-1).setRGB(0,25,0); //dim green
-            leds.getLED(actions.getAttention()-1).setOn();
+            //leds.getLED(actions.getAttention()-1).setRGB(0,25,0); //dim green
+            //leds.getLED(actions.getAttention()-1).setOn();
         }
         else
         {
             actions.decrementAtt();
-            leds.getLED(actions.getAttention()).setOff();
+            //leds.getLED(actions.getAttention()).setOff();
         }
+        
+        ledControl.green();
+        ledControl.setOn(actions.getAttention());
         
         System.out.println("Attention Level: "+ actions.getAttention());
         
