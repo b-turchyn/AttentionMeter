@@ -11,10 +11,12 @@ package org.sunspotworld;
 public class Actions 
 {
     private int attention;
+    private int average;
     
     public Actions()
     {
         attention = 0;
+        average = 4;
     }
     
     public void incrementAtt()
@@ -32,5 +34,10 @@ public class Actions
     public int getAttention()
     {
         return attention;
+    }
+    
+    public int getAverage()
+    {
+        return average;
     }
 }

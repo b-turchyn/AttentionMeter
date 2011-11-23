@@ -13,6 +13,7 @@ import com.sun.spot.core.resources.transducers.SwitchEvent;
 import com.sun.spot.core.resources.transducers.ITriColorLED;
 import com.sun.spot.core.resources.transducers.ITriColorLEDArray;
 import com.sun.spot.core.resources.transducers.LEDColor;
+import com.sun.spot.core.util.Utils;
 import com.sun.spot.espot.service.BootloaderListenerService;
 import com.sun.spot.ieee_802_15_4_radio.IEEE802_15_4Environment;
 import com.sun.spot.ieee_802_15_4_radio.util.IEEEAddress;
@@ -67,7 +68,36 @@ public class SunSpotApplication extends MIDlet implements ISwitchListener {
         }
         
         ISwitch sw1 = (ISwitch) Resources.lookup(ISwitch.class, "SW1");
-        while (true) {                  // done when switch is pressed
+        while (true) 
+        {   
+            Utils.sleep(10000);
+            
+            //Turn them off
+            for(int i = 0; i < 8; i++)
+            {
+                leds.getLED(i).setOff();
+            }
+            
+            //Set the average
+            for(int i = 0; i < actions.getAverage(); i++)
+            {
+               leds.getLED(i).setRGB(0,0,25); //dim green
+               leds.getLED(i).setOn();
+            }
+            
+            Utils.sleep(1000);
+            
+            for(int i = 0; i < 8; i++)
+            {
+                leds.getLED(i).setOff();
+            }
+            
+            //Set the average
+            for(int i = 0; i < actions.getAttention(); i++)
+            {
+               leds.getLED(i).setRGB(0,25,0); //dim green
+               leds.getLED(i).setOn();
+            }
                       
         }
         //notifyDestroyed();                      // cause the MIDlet to exit
