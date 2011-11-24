@@ -3,6 +3,8 @@
  * @author Brian Turchyn
  ***/
 package ca.umanitoba.cs.comp4720;
+import java.io.IOException;
+import javax.microedition.io.Datagram;
 
 /**
  *
@@ -17,11 +19,11 @@ public class AttentionLevel {
     private long timestamp;
     private int attentionLevel;
     
-    public AttentionLevel ( String packetInput ) {
-        String[] input = new String[3];
+    public AttentionLevel ( Datagram dg ) {
+        //String[] input = new String[3];
         
         // Parse out the 3 parts of the String
-        int index = packetInput.indexOf(NEWLINE);
+        /*int index = packetInput.indexOf(NEWLINE);
         int index2 = packetInput.indexOf(NEWLINE, index + 1);
         
         if ( index >= 0 ) {
@@ -34,9 +36,17 @@ public class AttentionLevel {
         }
         
         // Populate the variables
-        this.stationID = Long.parseLong(input[0]);
-        this.attentionLevel = Integer.valueOf(input[1]).intValue();
-        this.timestamp = Long.parseLong(input[2]);
+         * 
+         */
+        //replaced by
+        try {
+            this.stationID = dg.readLong();
+            this.attentionLevel = dg.readInt();
+            this.timestamp = dg.readLong();
+        }
+        catch (IOException e) {
+            //Failboatz
+        }
     }
     
     public AttentionLevel(long stationID, long timestamp, int attentionLevel) {
@@ -80,6 +90,20 @@ public class AttentionLevel {
     
     public String toString() {
         return getStationID() + "\n" + getAttentionLevel() + "\n" + getTimestamp();
+    }
+    
+    public Datagram toSend(Datagram dg) {
+        try {            
+            dg.writeLong(getStationID());
+            dg.writeInt(getAttentionLevel());
+            dg.writeLong(getTimestamp());
+        
+            return dg;
+        }
+        catch (IOException e) {
+            //All aboard the failboat.
+            return null;
+        }
     }
     
     public void setAttentionLevel( int attention ) {

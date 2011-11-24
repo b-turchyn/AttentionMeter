@@ -47,7 +47,7 @@ public class NetRequests
                     try {
                         dg.reset();
                         dgConnection.receive(dg);
-                        AttentionLevel tmp = new AttentionLevel(dg.readUTF());
+                        AttentionLevel tmp = new AttentionLevel(dg);
                         System.out.println("Received: " + tmp + " from " + dg.getAddress());
                         actions.parseAttentionLevel(tmp);
                     } catch (IOException e) {
@@ -99,7 +99,10 @@ public class NetRequests
         
         try {
             Datagram dg = dgConnection.newDatagram(dgConnection.getMaximumLength());
-            dg.writeUTF(att.toString());
+            
+            //dg.writeUTF(att.toString());
+            dg = att.toSend(dg);
+            
             dgConnection.send(dg);
             System.out.println("Broadcasting Attention: "+actions.getAttention());
         } catch ( IOException e ) {
