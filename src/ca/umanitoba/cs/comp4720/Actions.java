@@ -4,40 +4,62 @@
  */
 package ca.umanitoba.cs.comp4720;
 
+import com.sun.spot.ieee_802_15_4_radio.IEEE802_15_4Environment;
+import javax.microedition.io.Datagram;
+import org.sunspotworld.SunSpotApplication;
+
 /**
  *
  * @author kylekaufmann
  */
 public class Actions 
 {
-    private int attention;
     private int average;
+    private int attention;
+    private AttentionHistory history;
+    private AttentionLevel thisLevel;
+    private SunSpotApplication parent;
     
-    public Actions()
+    public Actions( SunSpotApplication parent )
     {
-        attention = 0;
-        average = 4;
+        // TODO: Get actual ID
+        this.history = new AttentionHistory();
+        thisLevel = new AttentionLevel(IEEE802_15_4Environment.getIEEEAddress(), System.currentTimeMillis(), 0 );
+        average = 0;
+        this.parent = parent;
     }
     
     public void incrementAtt()
     {
-        if (attention < 8)
-            attention++;
+        thisLevel.incrementAttentionLevel();
+        this.attention = thisLevel.getAttentionLevel();
     }
     
     public void decrementAtt()
     {
-        if (attention > 0)
-            attention--;
+        thisLevel.decrementAttentionLevel();
+        this.attention = thisLevel.getAttentionLevel();
     }
     
     public int getAttention()
     {
-        return attention;
+        return thisLevel.getAttentionLevel();
+    }
+    
+    public AttentionLevel getAttentionLevel() {
+        return thisLevel;
     }
     
     public int getAverage()
     {
         return average;
+    }
+    
+    public void parseAttentionLevel ( AttentionLevel att ) {
+        System.out.println("Parsing obj from ID: " + att.getStationID());
+        if ( this.history.doAttention(att) ) {
+            this.average = history.getAverageAttention();
+            this.parent.getNetRequests().sendAttentionLevel(att);
+        }
     }
 }

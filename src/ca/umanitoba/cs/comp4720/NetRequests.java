@@ -4,8 +4,6 @@
  */
 package ca.umanitoba.cs.comp4720;
 
-
-import ca.umanitoba.cs.comp4720.Actions;
 import com.sun.spot.core.util.Utils;
 import javax.microedition.io.Connector;
 import javax.microedition.io.Datagram;
@@ -21,6 +19,8 @@ import java.io.IOException;
 public class NetRequests 
 {
         private Actions actions;
+        private DatagramConnection dgConnection = null;
+        private boolean sending = false;
         
         public NetRequests(Actions actions)
         {
@@ -31,7 +31,6 @@ public class NetRequests
         {
         new Thread() {
             public void run() {
-                String tmp = null;
                 RadiogramConnection dgConnection = null;
                 Datagram dg = null;
                 
@@ -41,7 +40,6 @@ public class NetRequests
                     dg = dgConnection.newDatagram(dgConnection.getMaximumLength());
                 } catch (IOException e) {
                     System.out.println("Could not open radiogram receiver connection");
-                    e.printStackTrace();
                     return;
                 }
                 
@@ -49,8 +47,9 @@ public class NetRequests
                     try {
                         dg.reset();
                         dgConnection.receive(dg);
-                        tmp = dg.readUTF();
+                        AttentionLevel tmp = new AttentionLevel(dg.readUTF());
                         System.out.println("Received: " + tmp + " from " + dg.getAddress());
+                        actions.parseAttentionLevel(tmp);
                     } catch (IOException e) {
                         System.out.println("Nothing received");
                     }
@@ -67,8 +66,8 @@ public class NetRequests
         new Thread() {
             public void run() {
                 // We create a DatagramConnection
-                DatagramConnection dgConnection = null;
                 Datagram dg = null;
+                AttentionLevel broadcast;
                 try {
                     // The Connection is a broadcast so we specify it in the creation string
                     dgConnection = (DatagramConnection) Connector.open("radiogram://broadcast:42");
@@ -76,23 +75,37 @@ public class NetRequests
                     dg = dgConnection.newDatagram(dgConnection.getMaximumLength());
                 } catch (IOException ex) {
                     System.out.println("Could not open radiogram broadcast connection");
-                    ex.printStackTrace();
                     return;
                 }
                 
                 while(true){
-                    try {
-                        // We send the message (UTF encoded)
-                        dg.reset();
-                        dg.writeUTF("Atention level: "+actions.getAttention());
-                        dgConnection.send(dg);
-                        System.out.println("Broadcasting Attention: "+actions.getAttention());
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
+                    System.out.println("About to send regular broadcast");
+                    actions.getAttentionLevel().updateTimestamp();
+                    actions.parseAttentionLevel(actions.getAttentionLevel());
                     Utils.sleep(5000);
                 }
             }
         }.start();
+    }
+    
+    synchronized public void sendAttentionLevel ( AttentionLevel att ) {
+        // Make sure we're not sending
+        while ( sending ) {
+            Utils.sleep(10);
+            System.out.println("Sleeping");
+        }
+        sending = true;
+        System.out.println("Sending");
+        
+        try {
+            Datagram dg = dgConnection.newDatagram(dgConnection.getMaximumLength());
+            dg.writeUTF(att.toString());
+            dgConnection.send(dg);
+            System.out.println("Broadcasting Attention: "+actions.getAttention());
+        } catch ( IOException e ) {
+            // FAILBUS EXPRESS!
+        }
+        
+        sending = false;
     }
 }

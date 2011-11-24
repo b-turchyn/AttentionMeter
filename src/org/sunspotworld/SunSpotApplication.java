@@ -13,9 +13,6 @@ import com.sun.spot.core.resources.Resources;
 import com.sun.spot.core.resources.transducers.ISwitch;
 import com.sun.spot.core.resources.transducers.ISwitchListener;
 import com.sun.spot.core.resources.transducers.SwitchEvent;
-import com.sun.spot.core.resources.transducers.ITriColorLED;
-import com.sun.spot.core.resources.transducers.ITriColorLEDArray;
-import com.sun.spot.core.resources.transducers.LEDColor;
 import com.sun.spot.core.util.Utils;
 import com.sun.spot.espot.service.BootloaderListenerService;
 import com.sun.spot.ieee_802_15_4_radio.IEEE802_15_4Environment;
@@ -35,7 +32,6 @@ import java.io.IOException;
  */
 public class SunSpotApplication extends MIDlet implements ISwitchListener {
 
-    private ITriColorLEDArray leds = (ITriColorLEDArray) Resources.lookup(ITriColorLEDArray.class);
     private ISwitch sw1, sw2;      // Variables to hold the two switches.
     private Actions actions;
     private NetRequests req;
@@ -58,20 +54,19 @@ public class SunSpotApplication extends MIDlet implements ISwitchListener {
         long ourAddr = IEEE802_15_4Environment.getIEEEAddress();
         System.out.println("Our radio address = " + IEEEAddress.toDottedHex(ourAddr));
         
-        actions = new Actions();
+        actions = new Actions(this);
         req = new NetRequests(actions);
         
         try
         {
-           monitorSwitches();
-           req.startReceiverThread();
-           req.startSenderThread();
+            monitorSwitches();
+            req.startReceiverThread();
+            req.startSenderThread();
         }
         catch(IOException p)
         {
         }
         
-        ISwitch sw1 = (ISwitch) Resources.lookup(ISwitch.class, "SW1");
         while (true) 
         {   
             Utils.sleep(3000);
@@ -138,5 +133,9 @@ public class SunSpotApplication extends MIDlet implements ISwitchListener {
      * @param unconditional If true the MIDlet must cleanup and release all resources.
      */
     protected void destroyApp(boolean unconditional) throws MIDletStateChangeException {
+    }
+    
+    public NetRequests getNetRequests() {
+        return req;
     }
 }
