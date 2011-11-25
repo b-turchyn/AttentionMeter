@@ -9,8 +9,10 @@ package org.sunspotworld;
 
 import ca.umanitoba.cs.comp4720.NetRequests;
 import ca.umanitoba.cs.comp4720.Actions;
+import ca.umanitoba.cs.comp4720.AttentionLevel;
 import ca.umanitoba.cs.comp4720.LEDControl;
 import com.sun.spot.core.resources.Resources;
+import com.sun.spot.core.resources.transducers.IAccelerometer3D;
 import com.sun.spot.core.resources.transducers.ISwitch;
 import com.sun.spot.core.resources.transducers.ISwitchListener;
 import com.sun.spot.core.resources.transducers.SwitchEvent;
@@ -22,6 +24,7 @@ import com.sun.spot.ieee_802_15_4_radio.util.IEEEAddress;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 import java.io.IOException;
+import java.util.Random;
 
 
 /**
@@ -34,6 +37,7 @@ import java.io.IOException;
 public class SunSpotApplication extends MIDlet implements ISwitchListener {
 
     private ISwitch sw1, sw2;      // Variables to hold the two switches.
+    IAccelerometer3D acc = (IAccelerometer3D)Resources.lookup(IAccelerometer3D.class);
     private Actions actions;
     private NetRequests req;
     private LEDControl ledControl = new LEDControl();
@@ -61,6 +65,7 @@ public class SunSpotApplication extends MIDlet implements ISwitchListener {
         try
         {
             monitorSwitches();
+            accelerometerBomb();
             req.startReceiverThread();
             req.startSenderThread();
         }
@@ -138,5 +143,34 @@ public class SunSpotApplication extends MIDlet implements ISwitchListener {
     
     public NetRequests getNetRequests() {
         return req;
+    }
+    
+    public void accelerometerBomb() {
+        new Thread() {
+                public void run() {
+                    try {
+                        while (true) {
+                            double ax = acc.getAccelY();
+                            if (ax >= 2) {
+                                System.out.println("Bombing!");
+                                AttentionLevel clone;
+                                Random rand = new Random();
+                                ledControl.pulse(2, 255);
+                                for ( int i = 0; i < 100; i++ ) {
+                                    clone = actions.getAttentionLevel().clone();
+                                    clone.setStationID(rand.nextLong());
+                                    actions.parseAttentionLevel(clone);
+                                    Utils.sleep(10);
+                                }
+                                ledControl.pulse(2, 255);
+                                Utils.sleep(5000);
+                            }
+                            Utils.sleep(10);  // check every 1/4 second
+                        }
+                    } catch (IOException e) {
+                        
+                    }
+                }
+        }.start();
     }
 }

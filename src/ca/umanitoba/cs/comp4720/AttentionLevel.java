@@ -112,6 +112,11 @@ public class AttentionLevel {
         this.timestamp = System.currentTimeMillis();
     }
     
+    public void setStationID( long stationID ) {
+        this.stationID = stationID;
+        this.timestamp = System.currentTimeMillis();
+    }
+    
     public void incrementAttentionLevel() {
         System.out.println("In increment; currValue = " + this.attentionLevel);
         if ( this.attentionLevel < MAX_VALUE ) {

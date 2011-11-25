@@ -78,16 +78,25 @@ public class LEDControl {
      * Sets all the LEDs to white
      */
     public void white() {
-        leds.setRGB(ON_VALUE, ON_VALUE, ON_VALUE);
+        white(ON_VALUE);
+    }
+    
+    public void white(int brightness) {
+        leds.setRGB(brightness, brightness, brightness);
     }
     
     public void pulse(int times) {
+        pulse(times, ON_VALUE);
+    }
+    
+    public void pulse(int times, int brightness) {
         for ( int i = 0; i < times; i++ ) {
             off();
             Utils.sleep(100);
-            white();
+            white(brightness);
             on();
             Utils.sleep(100);
         }
+        off();
     }
 }
