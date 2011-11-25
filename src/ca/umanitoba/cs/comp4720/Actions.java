@@ -58,8 +58,12 @@ public class Actions
     public void parseAttentionLevel ( AttentionLevel att ) {
         System.out.println("Parsing obj from ID: " + att.getStationID());
         if ( this.history.doAttention(att) ) {
-            this.average = history.getAverageAttention();
+            updateAverage();
             this.parent.getNetRequests().sendAttentionLevel(att);
         }
+    }
+    
+    public void updateAverage() {
+        this.average = history.getAverageAttention();
     }
 }

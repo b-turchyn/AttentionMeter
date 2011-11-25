@@ -4,6 +4,7 @@
  */
 package ca.umanitoba.cs.comp4720;
 
+import com.sun.spot.core.util.Utils;
 import java.util.Vector;
 
 /**
@@ -12,9 +13,11 @@ import java.util.Vector;
  */
 public class AttentionHistory {
     private Vector history;
+    public static final long SLEEP_TIME = 5000;
     
     public AttentionHistory() {
         history = new Vector();
+        cleanupThread();
     }
     
     /**
@@ -110,5 +113,35 @@ public class AttentionHistory {
         }
         
         return result / this.history.size();
+    }
+    
+    private void cleanupThread() {
+        new Thread() {
+            public void run() {
+                while ( true ) {
+                    Utils.sleep(SLEEP_TIME);
+
+                    Vector newHistory = new Vector();
+
+                    for ( int i = 0; i < history.size(); i++ ) {
+                        AttentionLevel hID;
+
+                        try {
+                            hID = (AttentionLevel)history.elementAt(i);
+                            if ( hID.getTimestamp() >= (System.currentTimeMillis() - (20 * 1000))) {
+                                newHistory.addElement(hID);
+                            } else {
+                                System.out.println("Removing a value!");
+                            }
+                        } catch (ClassCastException e) {
+                            System.out.print("On average calculation, got an object other than AttentionLevel");
+                        } catch (NullPointerException e) {
+                            System.out.print("On average calculation, got a null AttentionLevel");
+                        }
+                    }
+                    history = newHistory;
+                }
+            }
+        }.start();
     }
 }

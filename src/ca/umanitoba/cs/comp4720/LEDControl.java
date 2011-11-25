@@ -6,6 +6,7 @@ package ca.umanitoba.cs.comp4720;
 
 import com.sun.spot.core.resources.Resources;
 import com.sun.spot.core.resources.transducers.ITriColorLEDArray;
+import com.sun.spot.core.util.Utils;
 
 /**
  * The LEDControl class is what we use to control the LEDs on the 'Spot. Just
@@ -22,7 +23,7 @@ public class LEDControl {
     public static final int ON_VALUE = 50;
     
     public LEDControl() {
-        
+        pulse(2);
     }
     
     /**
@@ -78,5 +79,15 @@ public class LEDControl {
      */
     public void white() {
         leds.setRGB(ON_VALUE, ON_VALUE, ON_VALUE);
+    }
+    
+    public void pulse(int times) {
+        for ( int i = 0; i < times; i++ ) {
+            off();
+            Utils.sleep(100);
+            white();
+            on();
+            Utils.sleep(100);
+        }
     }
 }

@@ -70,7 +70,7 @@ public class SunSpotApplication extends MIDlet implements ISwitchListener {
         
         while (true) 
         {   
-            Utils.sleep(3000);
+            Utils.sleep(4500);
             
             //Turn them off
             ledControl.off();
