@@ -33,16 +33,16 @@ public class AttentionHistory {
         if ( index[0] >= 0 ) {
             // Was it inexact (needs updating)?
             if ( index[1] == 0 ) {
-                System.out.println("Will be sending out");
+                //System.out.println("Will be sending out");
                 updateAttention ( att, index[0] );
                 result = true;
             } else {
-                System.out.println("Exact match. Not resending.");
+                //System.out.println("Exact match. Not resending.");
             }
         } else { // Was not found; insert and send.
             insertAttention ( att );
             result = true;
-            System.out.println("Will be sending out");
+            //System.out.println("Will be sending out");
         }
         
         return result;
@@ -112,7 +112,10 @@ public class AttentionHistory {
             }
         }
         
-        return result / this.history.size();
+        if (this.history.size() > 0)
+            return result / this.history.size();
+        else
+            return 0;
     }
     
     private void cleanupThread() {

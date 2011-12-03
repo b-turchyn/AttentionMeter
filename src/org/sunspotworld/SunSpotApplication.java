@@ -40,15 +40,30 @@ public class SunSpotApplication extends MIDlet implements ISwitchListener {
     IAccelerometer3D acc = (IAccelerometer3D)Resources.lookup(IAccelerometer3D.class);
     private Actions actions;
     private NetRequests req;
-    private LEDControl ledControl = new LEDControl();
+    private LEDControl ledControl;
+    private boolean baseStation;
 
+    
+    public boolean isBaseStation()
+    {
+        return baseStation;
+    }
+    
     private void monitorSwitches() throws IOException
     {
         sw1 = (ISwitch) Resources.lookup(ISwitch.class, "SW1");
         sw2 = (ISwitch) Resources.lookup(ISwitch.class, "SW2");
-
-        sw1.addISwitchListener(this);       // enable automatic notification of switches
-        sw2.addISwitchListener(this);       
+        
+        //if we have a null switch, we can assume we are a base station.
+        if (sw1 == null || sw2 == null)
+        {
+            throw new IOException();
+        }
+        else
+        {
+            sw1.addISwitchListener(this);       // enable automatic notification of switches
+            sw2.addISwitchListener(this);     
+        }
         
     }
     
@@ -62,36 +77,55 @@ public class SunSpotApplication extends MIDlet implements ISwitchListener {
         actions = new Actions(this);
         req = new NetRequests(actions);
         
+        baseStation = false;
+        
         try
         {
             monitorSwitches();
-            accelerometerBomb();
+            ledControl = new LEDControl();
+            //accelerometerBomb();
             req.startReceiverThread();
             req.startSenderThread();
         }
         catch(IOException p)
         {
+            baseStation = true;
         }
         
-        while (true) 
-        {   
-            Utils.sleep(4500);
-            
-            //Turn them off
-            ledControl.off();
-            
-            //Set the average
-            ledControl.red();
-            ledControl.setOn(actions.getAverage());
-            
-            Utils.sleep(500);
-            
-            ledControl.off();
-            
-            //Set the average
-            ledControl.green();
-            ledControl.setOn(actions.getAttention());
-                      
+        if (isBaseStation())
+        {
+            System.out.println("Hello, I'll be your base station today.");
+            req.startReceiverThread();
+            while(true)
+            {
+                //To Infinity....
+                Utils.sleep(5000);
+                System.out.println("Average is "+actions.getAverage());
+            }
+        }
+        else
+        {
+            System.out.println("Hello, I'll be your sun spot client today.");
+            while (true) 
+            {   
+                Utils.sleep(4500);
+
+                //Turn them off
+                ledControl.off();
+
+                //Set the average
+                ledControl.red();
+                ledControl.setOn(actions.getAverage());
+
+                Utils.sleep(500);
+
+                ledControl.off();
+
+                //Set the average
+                ledControl.green();
+                ledControl.setOn(actions.getAttention());
+
+            }
         }
         //notifyDestroyed();                      // cause the MIDlet to exit
     }

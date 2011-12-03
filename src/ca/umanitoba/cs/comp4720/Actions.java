@@ -52,14 +52,18 @@ public class Actions
     
     public int getAverage()
     {
+        updateAverage();
         return average;
     }
     
     public void parseAttentionLevel ( AttentionLevel att ) {
         System.out.println("Parsing obj from ID: " + att.getStationID());
-        if ( this.history.doAttention(att) ) {
+        if ( this.history.doAttention(att) ) 
+        {
             updateAverage();
-            this.parent.getNetRequests().sendAttentionLevel(att);
+            //Do not forward packets if you are a base station.
+            if (!parent.isBaseStation())
+                this.parent.getNetRequests().sendAttentionLevel(att);
         }
     }
     
