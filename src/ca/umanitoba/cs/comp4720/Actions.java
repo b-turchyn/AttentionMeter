@@ -52,7 +52,7 @@ public class Actions
     
     public int getAverage()
     {
-        updateAverage();
+        //updateAverage();
         return average;
     }
     

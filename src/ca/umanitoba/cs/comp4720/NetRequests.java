@@ -47,9 +47,13 @@ public class NetRequests
                     try {
                         dg.reset();
                         dgConnection.receive(dg);
-                        AttentionLevel tmp = new AttentionLevel(dg);
+                        AttentionLevel tmp = new AttentionLevel();
+                        boolean valid = tmp.parsePacket(dg);
                         System.out.println("Received: " + tmp + " from " + dg.getAddress());
-                        actions.parseAttentionLevel(tmp);
+                        if (valid)
+                            actions.parseAttentionLevel(tmp);
+                        else
+                            System.out.println("Ignoring malicious packet.");
                     } catch (IOException e) {
                         System.out.println("Nothing received");
                     }

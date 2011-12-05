@@ -19,35 +19,53 @@ public class AttentionLevel {
     private long timestamp;
     private int attentionLevel;
     
-    public AttentionLevel ( Datagram dg ) {
-        //String[] input = new String[3];
-        
-        // Parse out the 3 parts of the String
-        /*int index = packetInput.indexOf(NEWLINE);
-        int index2 = packetInput.indexOf(NEWLINE, index + 1);
-        
-        if ( index >= 0 ) {
-            input[0] = packetInput.substring(0, index);
-        }
-        
-        if ( index2 >= 0 ) {
-            input[1] = packetInput.substring(index + 1, index2);
-            input[2] = packetInput.substring(index2 + 1);
-        }
-        
-        // Populate the variables
-         * 
-         */
+    public boolean parsePacket ( Datagram dg ) {
         //replaced by
+        
+        long stationID = 0;
+        int attentionLevel = 0;
+        long timestamp = 0;
+        
+        boolean valid = true;
+        
         try {
-            this.stationID = dg.readLong();
-            this.attentionLevel = dg.readInt();
-            this.timestamp = dg.readLong();
+            //checks for incorrect data
+            stationID = dg.readLong();
+            attentionLevel = dg.readInt();
+            timestamp = dg.readLong();
         }
-        catch (IOException e) {
-            //Failboatz
+        catch (IOException e) 
+        {
         }
+        
+        //Check if payload is valid
+        //System.out.println("ID:  "+stationID);
+        if (stationID < 0 || stationID > Long.MAX_VALUE)
+            valid = false;
+       
+        //System.out.println("ATT: "+attentionLevel);
+        if (attentionLevel < 0 || attentionLevel > 8)
+            valid = false;
+        
+        //System.out.println("TIM: "+timestamp);
+        if (timestamp < 0 || timestamp > Long.MAX_VALUE)
+            valid = false;
+        
+        if (valid) //Add the data
+        {
+            this.stationID = stationID;
+            this.attentionLevel = attentionLevel;
+            this.timestamp = timestamp;
+        }
+        
+        return valid;
     }
+    
+    public AttentionLevel() 
+    {
+        //Create new Attention level, but packet must be validated.
+    }
+    
     
     public AttentionLevel(long stationID, long timestamp, int attentionLevel) {
         this.stationID = stationID;
@@ -70,11 +88,11 @@ public class AttentionLevel {
     public boolean equals( AttentionLevel other ) {
         boolean result = true;
         
-        System.out.println(other.getTimestamp() + " vs " + getTimestamp());
+        //System.out.println(other.getTimestamp() + " vs " + getTimestamp());
         if ( other.getTimestamp() != getTimestamp() ) result = false;
-        System.out.println(other.getAttentionLevel() + " vs " + getAttentionLevel());
+        //System.out.println(other.getAttentionLevel() + " vs " + getAttentionLevel());
         if ( other.getAttentionLevel() != getAttentionLevel() ) result = false;
-        System.out.println(other.getStationID() + " vs " + getStationID());
+        //System.out.println(other.getStationID() + " vs " + getStationID());
         if ( other.getStationID() != getStationID() ) result = false;
         
         return result;
@@ -82,7 +100,7 @@ public class AttentionLevel {
     
     public boolean equalsStationID( AttentionLevel other ) {
         boolean result = true;
-        
+         
         if ( other.getStationID() != getStationID() ) result = false;
         
         return result;
