@@ -1,0 +1,30 @@
+h1. AttentionMeter
+
+This is the course project for UofM COMP4720, Fall 2011
+
+h2. Authors
+* Kyle Kaufmann
+* Brian Turchyn
+
+h2. Requirements:
+* Netbeans
+* SunSpot SDK
+
+h2. To install:
+* Load project into NetBeans
+* Connect SunSpot
+* Right-click on project and select Build "Project + Deploy To SunSPOT"
+
+h2. Project Information
+
+The software is designed to collect a value between 0 and 8 via the button controls (which should represent the attention level of the user). Every 5 seconds, the SPOT broadcasts its current value on port 42. 
+
+Data is collected from other broadcasted SPOTs. This value is stored in the AttentionHistory class, which houses a Vector of AttentionLevel objects, along with a number of utility methods related to that data (including average calculation, checking if the value is already there, etc). 
+
+When data is received, it is assembled into an AttentionLevel packet (upon confirming that the data is valid). The data is checked to see if it has already been received before. If it has, the data is ignored. If it has not, the data is inserted into AttentionHistory if no existing value for that SPOT ID has been received, or if the SPOT already has a value in the history, that value has been updated. Whenever the AttentionHistory is updated, a new average is calculated and stored. 
+
+On a regular basis, the history is cleaned of any objects that are older than 20 seconds, working under the assumption that the user is no longer transmitting and that they should no longer be factored into the average. 
+
+The LEDs flash approximately every 4.5 seconds for 0.5 seconds to show the current average of all the collected values. The display will then go back to the value of the SPOT itself. 
+
+When shook across the Y axis (top-to-bottom), the SPOT will begin the 'stress test' action, which will saturate the network with 100 packets with random IDs and the value that is currently on the SPOT. Two white flashes denote the start of this, and another two denote the end of this (not including the hard-coded 5 second cooldown to avoid abuse). This was implemented to properly test out how the software would handle extremely large numbers of clients connected to the piconet without actually having access to 100+ SPOTs. 
